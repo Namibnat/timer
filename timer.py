@@ -97,6 +97,10 @@ class Timer(ttk.Frame):
         self.time_column = 3
 
         self.initUI()
+        self.error_style = ttk.Style()
+        self.error_style.configure('Error.TLabel',
+                                   foreground='red',
+                                   font=('Sans', '10', 'bold'))
 
     def dispatch(self, input, output):
         """Sets the clock values when user updates them"""
@@ -109,6 +113,7 @@ class Timer(ttk.Frame):
             self.error_message.set("")
         except ValueError:
             self.error_message.set("The value you gave isn't valid")
+            input.set("")
 
     def set_user_input(self, context):
         exec(f"self.dispatch(self.{context}_input_value, self.{context}_label_text)")
@@ -246,7 +251,8 @@ class Timer(ttk.Frame):
         self.current_row += 1
 
         self.error_message = tk.StringVar()
-        error_message_label = ttk.Label(self, textvariable=self.error_message)
+        error_message_label = ttk.Label(self, textvariable=self.error_message,
+                                        style='Error.TLabel')
         error_message_label.grid(row=self.current_row, column=0, columnspan=2)
         start_button = ttk.Button(self, text="Start", command=self.start_timer)
         start_button.grid(row=self.current_row, column=2, padx=5, pady=30, ipady=5, sticky=tk.S)
