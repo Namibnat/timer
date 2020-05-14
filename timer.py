@@ -141,6 +141,16 @@ class Timer(ttk.Frame):
         divide = ttk.Separator(self, orient=tk.HORIZONTAL)
         divide.grid(row=self.current_row, sticky="ew", columnspan=4)
 
+        # --------- Column labels line -------
+        self.current_row += 1
+        labels = ("Label", "Enter Minutes", "Change", "Timers")
+        for key, value in enumerate(labels):
+            label = ttk.Label(self, text=value)
+            label.grid(row=self.current_row, column=key, pady=7)
+        self.current_row += 1
+        divide = ttk.Separator(self, orient=tk.HORIZONTAL)
+        divide.grid(row=self.current_row, sticky="ew", columnspan=4)
+
         # --------- Clear mind line line -------
         self.current_row += 1
         clear_mind_instruction = ttk.Label(self,
