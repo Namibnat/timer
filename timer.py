@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Routine for studying
 
 This should generally run as a standalone routine
@@ -26,6 +28,8 @@ TODO:
         https://stackoverflow.com/questions/61814252/why-does-this-python-recursive-function-not-overflow-the-stack
     - Each line of the timer gui is a bunch of  repeated
       code, which can be built in a more DRY way.
+    - If you stop the timer, it starts at the top again, and
+      should save it's position and start there.
 """
 
 import tkinter as tk
@@ -75,6 +79,7 @@ class Timer(ttk.Frame):
 
         self.minutes = self.seconds = 0
         self.minute_vals = [5, 30, 5, 15]
+        self.stop_timer = False
 
         self.clear_mind_label_text = tk.StringVar()
         self.study_label_text = tk.StringVar()
@@ -85,7 +90,7 @@ class Timer(ttk.Frame):
         self.review_input_value = tk.StringVar()
         self.relax_input_value = tk.StringVar()
         self.error_message = tk.StringVar()
-        self.item = (
+        self.clocks = (
             self.clear_mind_label_text,
             self.study_label_text,
             self.review_label_text,
@@ -276,7 +281,16 @@ class Timer(ttk.Frame):
         error_message_label = ttk.Label(self, textvariable=self.error_message,
                                         style='Error.TLabel')
         error_message_label.grid(row=self.current_row, column=0, columnspan=2)
-        start_button = ttk.Button(self, text="Start", command=self.run_timer)
+        reset_button = ttk.Button(self, text="Reset",
+                                  command=self.set_vals)
+        reset_button.grid(row=self.current_row, column=0, padx=5,
+                          pady=20, ipady=5, sticky=tk.S)
+        stop_button = ttk.Button(self, text="Stop",
+                                 command=lambda: self.switch_timer(True))
+        stop_button.grid(row=self.current_row, column=1, padx=5,
+                         pady=20, ipady=5, sticky=tk.S)
+        start_button = ttk.Button(self, text="Start",
+                                  command=lambda: self.switch_timer(False))
         start_button.grid(row=self.current_row, column=2, padx=5,
                           pady=20, ipady=5, sticky=tk.S)
         quit = ttk.Button(self, text="Quit", command=self.quit)
@@ -291,7 +305,7 @@ class Timer(ttk.Frame):
         """Sets the clock values when user updates them"""
         try:
             val = int(input.get())
-            self.minute_vals[self.item.index(output)] = val
+            self.minute_vals[self.clocks.index(output)] = val
             self.minutes = val
             clock = f"{self.minutes:02}:00"
             output.set(clock)
@@ -318,9 +332,15 @@ class Timer(ttk.Frame):
         """Set the clock values"""
         self.seconds = 0
         # Reversed so self.minute ends at the starting val
-        for key, item in enumerate(reversed(self.item)):
+        for key, item in enumerate(reversed(self.clocks)):
             self.minutes = self.minute_vals[key]
             self.update_clock(item)
+
+    def switch_timer(self, action):
+        """Toggel running timer"""
+        self.stop_timer = action
+        if not action:
+            self.run_timer()
 
     def run_timer(self, context=0):
         """The main timer routine
@@ -328,21 +348,22 @@ class Timer(ttk.Frame):
         This is what this whole program is about.
         It recursively calling itself.
         """
+        if self.stop_timer:
+            return False
         self.seconds -= 1
         if self.seconds == -1:
             self.seconds = 59
             self.minutes -= 1
-        self.update_clock(self.item[context])
+        self.update_clock(self.clocks[context])
         if self.minutes > 0 or self.seconds > 0:
             self.master.after(1000, lambda: self.run_timer(context))
         else:
-            self.item[context].set("DONE!")
             self.snd.play(blocking=1)
             context += 1
-            if context == len(self.item):
+            if context == len(self.clocks):
                 context = 0
                 self.set_vals()
-            val = self.item[context].get().split(':')[0]
+            val = self.clocks[context].get().split(':')[0]
             self.minutes = int(val)
             self.run_timer(context)
 
