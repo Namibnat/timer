@@ -22,6 +22,8 @@ TODO:
     - The timer is a deeply recursive function, which is
       going to create a deep stack in memory, I presume.
       Make it work on repeated calls would be better.
+      I asked about it on stackoverflow:
+        https://stackoverflow.com/questions/61814252/why-does-this-python-recursive-function-not-overflow-the-stack
     - Each line of the timer gui is a bunch of  repeated
       code, which can be built in a more DRY way.
 """
@@ -83,12 +85,12 @@ class Timer(ttk.Frame):
         self.review_input_value = tk.StringVar()
         self.relax_input_value = tk.StringVar()
         self.error_message = tk.StringVar()
-        self.item = [
+        self.item = (
             self.clear_mind_label_text,
             self.study_label_text,
             self.review_label_text,
             self.relax_label_text,
-        ]
+        )
 
         self.current_row = 0
         self.line_label = 0
@@ -125,44 +127,19 @@ class Timer(ttk.Frame):
         self.initUI()
         self.set_vals()
 
-    def dispatch(self, input, output):
-        """Sets the clock values when user updates them"""
-        try:
-            val = int(input.get())
-            self.minute_vals[self.item.index(output)] = val
-            self.minutes = val
-            clock = f"{self.minutes:02}:00"
-            output.set(clock)
-            self.error_message.set("")
-        except ValueError:
-            self.error_message.set("The value you gave isn't valid")
-            input.set("")
-
-    def set_user_input(self, context):
-        exec(f"self.dispatch(self.{context}_input_value, self.{context}_label_text)")
-
-    def update_clock(self, label_text):
-        """Sets the values for each timer
-
-        The timer takes the form MM:SS
-        The user can only set minutes, but minutes
-        are included here for the timer routine.
-        """
-        clock = f"{self.minutes:02}:{self.seconds:02}"
-        label_text.set(clock)
-
     def initUI(self):
         """Build the gui"""
         self.master.geometry("+100+100")
-        self.master.title("Timer")
+        self.master.title("-- Timer --")
 
         # --------- Top intro line -------
-        intro_text = "Timer, clear your mind, study, review, relax"
+        intro_text = "Timer: clear your mind, study, review, relax"
         intro = ttk.Label(self, text=intro_text, style='Title.TLabel')
         intro.grid(row=self.current_row, column=0, columnspan=4, pady=20)
         self.current_row += 1
-        divide = ttk.Separator(self, orient=tk.HORIZONTAL, style='Line.TSeparator')
-        divide.grid(row=self.current_row, sticky="ew", columnspan=4)
+        divide = ttk.Separator(self, orient=tk.HORIZONTAL,
+                               style='Line.TSeparator')
+        divide.grid(row=self.current_row, sticky=tk.EW, columnspan=4)
 
         # --------- Column labels line -------
         self.current_row += 1
@@ -172,15 +149,16 @@ class Timer(ttk.Frame):
             label.configure(style='Nice.TLabel')
             label.grid(row=self.current_row, column=key, pady=7)
         self.current_row += 1
-        divide = ttk.Separator(self, orient=tk.HORIZONTAL, style='Line.TSeparator')
-        divide.grid(row=self.current_row, sticky="ew", columnspan=4)
+        divide = ttk.Separator(self, orient=tk.HORIZONTAL,
+                               style='Line.TSeparator')
+        divide.grid(row=self.current_row, sticky=tk.EW, columnspan=4)
 
         # --------- Clear mind line line -------
         self.current_row += 1
         clear_mind_instruction = ttk.Label(self, style='Nice.TLabel',
                                            text="Clear your mind timer")
         clear_mind_instruction.grid(row=self.current_row,
-                                    column=self.line_label,
+                                    column=self.line_label, sticky=tk.E,
                                     padx=5, pady=5)
         clear_mind_amount = ttk.Entry(self, width=9, style='Nice.TEntry',
                                       textvariable=self.clear_mind_input_value)
@@ -188,8 +166,10 @@ class Timer(ttk.Frame):
         clear_mind_amount.grid(row=self.current_row,
                                column=self.entry_colomn,
                                padx=5, pady=9)
-        set_clear_mind_amount = ttk.Button(self, style='Nice.TButton', text="SET")
-        set_clear_mind_amount.configure(command=lambda: self.set_user_input("clear_mind"))
+        set_clear_mind_amount = ttk.Button(self, style='Nice.TButton',
+                                           text="SET")
+        set_clear_mind_amount.configure(
+            command=lambda: self.set_user_input("clear_mind"))
         set_clear_mind_amount.grid(row=self.current_row,
                                    column=self.set_entry_column,
                                    padx=5, pady=5)
@@ -199,17 +179,19 @@ class Timer(ttk.Frame):
                               column=self.time_column,
                               padx=5, pady=5)
         self.current_row += 1
-        divide = ttk.Separator(self, orient=tk.HORIZONTAL, style='Line.TSeparator')
-        divide.grid(row=self.current_row, sticky="ew", columnspan=4)
+        divide = ttk.Separator(self, orient=tk.HORIZONTAL,
+                               style='Line.TSeparator')
+        divide.grid(row=self.current_row, sticky=tk.EW, columnspan=4)
 
         # --------- Study line -------
         self.current_row += 1
         study_instruction = ttk.Label(self, style='Nice.TLabel',
                                       text="Study mind timer")
         study_instruction.grid(row=self.current_row,
-                               column=self.line_label,
+                               column=self.line_label, sticky=tk.E,
                                padx=5, pady=5)
-        study_amount = ttk.Entry(self, justify=tk.CENTER, width=9, style='Nice.TEntry',
+        study_amount = ttk.Entry(self, justify=tk.CENTER, width=9,
+                                 style='Nice.TEntry',
                                  textvariable=self.study_input_value)
         study_amount.grid(row=self.current_row,
                           column=self.entry_colomn,
@@ -225,17 +207,19 @@ class Timer(ttk.Frame):
                          column=self.time_column,
                          padx=5, pady=5)
         self.current_row += 1
-        divide = ttk.Separator(self, orient=tk.HORIZONTAL, style='Line.TSeparator')
-        divide.grid(row=self.current_row, sticky="ew", columnspan=4)
+        divide = ttk.Separator(self, orient=tk.HORIZONTAL,
+                               style='Line.TSeparator')
+        divide.grid(row=self.current_row, sticky=tk.EW, columnspan=4)
 
         # --------- Review line -------
         self.current_row += 1
         review_instruction = ttk.Label(self, style='Nice.TLabel',
                                        text="Review mind timer")
         review_instruction.grid(row=self.current_row,
-                                column=self.line_label,
+                                column=self.line_label, stick=tk.E,
                                 padx=5, pady=5)
-        review_amount = ttk.Entry(self, justify=tk.CENTER, width=9, style='Nice.TEntry',
+        review_amount = ttk.Entry(self, justify=tk.CENTER, width=9,
+                                  style='Nice.TEntry',
                                   textvariable=self.review_input_value)
         review_amount.grid(row=self.current_row,
                            column=self.entry_colomn,
@@ -251,8 +235,9 @@ class Timer(ttk.Frame):
                           column=self.time_column,
                           padx=5, pady=5)
         self.current_row += 1
-        divide = ttk.Separator(self, orient=tk.HORIZONTAL, style='Line.TSeparator')
-        divide.grid(row=self.current_row, sticky="ew", columnspan=4)
+        divide = ttk.Separator(self, orient=tk.HORIZONTAL,
+                               style='Line.TSeparator')
+        divide.grid(row=self.current_row, sticky=tk.EW, columnspan=4)
 
         # --------- Relax line -------
         self.current_row += 1
@@ -260,8 +245,9 @@ class Timer(ttk.Frame):
                                       text="Relax mind timer")
         relax_instruction.grid(row=self.current_row,
                                column=self.line_label,
-                               padx=5, pady=5)
-        relax_amount = ttk.Entry(self, justify=tk.CENTER, width=9, style='Nice.TEntry',
+                               sticky=tk.E, padx=5, pady=5)
+        relax_amount = ttk.Entry(self, justify=tk.CENTER, width=9,
+                                 style='Nice.TEntry',
                                  textvariable=self.relax_input_value)
         relax_amount.grid(row=self.current_row,
                           column=self.entry_colomn,
@@ -279,8 +265,9 @@ class Timer(ttk.Frame):
                          column=self.time_column,
                          padx=5, pady=5)
         self.current_row += 1
-        divide = ttk.Separator(self, orient=tk.HORIZONTAL, style='Line.TSeparator')
-        divide.grid(row=self.current_row, sticky="ew", columnspan=4)
+        divide = ttk.Separator(self, orient=tk.HORIZONTAL,
+                               style='Line.TSeparator')
+        divide.grid(row=self.current_row, sticky=tk.EW, columnspan=4)
 
         # --------- control column line -------
         self.current_row += 1
@@ -290,13 +277,42 @@ class Timer(ttk.Frame):
                                         style='Error.TLabel')
         error_message_label.grid(row=self.current_row, column=0, columnspan=2)
         start_button = ttk.Button(self, text="Start", command=self.run_timer)
-        start_button.grid(row=self.current_row, column=2, padx=5, pady=20, ipady=5, sticky=tk.S)
+        start_button.grid(row=self.current_row, column=2, padx=5,
+                          pady=20, ipady=5, sticky=tk.S)
         quit = ttk.Button(self, text="Quit", command=self.quit)
-        quit.grid(row=self.current_row, column=3, padx=5, pady=20, ipady=5, sticky=tk.S)
+        quit.grid(row=self.current_row, column=3, padx=5, pady=20,
+                  ipady=5, sticky=tk.S)
         self.configure(style='Nice.TFrame')
         self.grid_columnconfigure(0, weight=1)
         self.pack(fill=tk.BOTH, expand=1, padx=5, pady=5)
         self.master.configure(background="#05386b")
+
+    def dispatch(self, input, output):
+        """Sets the clock values when user updates them"""
+        try:
+            val = int(input.get())
+            self.minute_vals[self.item.index(output)] = val
+            self.minutes = val
+            clock = f"{self.minutes:02}:00"
+            output.set(clock)
+            self.error_message.set("")
+        except ValueError:
+            self.error_message.set("The value you gave isn't valid")
+            input.set("")
+
+    def set_user_input(self, context):
+        exec(f"self.dispatch(self.{context}_input_value,\
+             self.{context}_label_text)")
+
+    def update_clock(self, label_text):
+        """Sets the values for each timer
+
+        The timer takes the form MM:SS
+        The user can only set minutes, but minutes
+        are included here for the timer routine.
+        """
+        clock = f"{self.minutes:02}:{self.seconds:02}"
+        label_text.set(clock)
 
     def set_vals(self):
         """Set the clock values"""
