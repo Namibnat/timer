@@ -96,11 +96,26 @@ class Timer(ttk.Frame):
         self.set_entry_column = 2
         self.time_column = 3
 
-        self.initUI()
+        # ------ styles -----------
         self.error_style = ttk.Style()
         self.error_style.configure('Error.TLabel',
                                    foreground='red',
+                                   background="#5cdb95",
                                    font=('Sans', '10', 'bold'))
+        self.title_label_style = ttk.Style()
+        self.title_label_style.configure('Title.TLabel',
+                                         font=('Sans', '12', 'bold'),
+                                         background="#5cdb95")
+        self.label_style = ttk.Style()
+        self.label_style.configure('Nice.TLabel',
+                                   background="#5cdb95")
+        self.entry_style = ttk.Style()
+        self.frame_style = ttk.Style()
+        self.frame_style.configure('Nice.TFrame',
+                                   background="#5cdb95")
+
+        self.initUI()
+        self.set_vals()
 
     def dispatch(self, input, output):
         """Sets the clock values when user updates them"""
@@ -135,7 +150,7 @@ class Timer(ttk.Frame):
 
         # --------- Top intro line -------
         intro_text = "Timer, clear your mind, study, review, relax"
-        intro = ttk.Label(self, text=intro_text)
+        intro = ttk.Label(self, text=intro_text, style='Title.TLabel')
         intro.grid(row=self.current_row, column=0, columnspan=4, pady=20)
         self.current_row += 1
         divide = ttk.Separator(self, orient=tk.HORIZONTAL)
@@ -146,6 +161,7 @@ class Timer(ttk.Frame):
         labels = ("Label", "Enter Minutes", "Change", "Timers")
         for key, value in enumerate(labels):
             label = ttk.Label(self, text=value)
+            label.configure(style='Nice.TLabel')
             label.grid(row=self.current_row, column=key, pady=7)
         self.current_row += 1
         divide = ttk.Separator(self, orient=tk.HORIZONTAL)
@@ -153,13 +169,14 @@ class Timer(ttk.Frame):
 
         # --------- Clear mind line line -------
         self.current_row += 1
-        clear_mind_instruction = ttk.Label(self,
+        clear_mind_instruction = ttk.Label(self, style='Nice.TLabel',
                                            text="Clear your mind timer")
         clear_mind_instruction.grid(row=self.current_row,
                                     column=self.line_label,
                                     padx=5, pady=5)
-        clear_mind_amount = ttk.Entry(self, justify=tk.RIGHT, width=9,
+        clear_mind_amount = ttk.Entry(self, width=9,
                                       textvariable=self.clear_mind_input_value)
+        clear_mind_amount.configure(justify='right')
         clear_mind_amount.grid(row=self.current_row,
                                column=self.entry_colomn,
                                padx=5, pady=9)
@@ -168,7 +185,7 @@ class Timer(ttk.Frame):
         set_clear_mind_amount.grid(row=self.current_row,
                                    column=self.set_entry_column,
                                    padx=5, pady=5)
-        clear_mind_clock = ttk.Label(self,
+        clear_mind_clock = ttk.Label(self, style='Nice.TLabel',
                                      textvariable=self.clear_mind_label_text)
         clear_mind_clock.grid(row=self.current_row,
                               column=self.time_column,
@@ -179,7 +196,7 @@ class Timer(ttk.Frame):
 
         # --------- Study line -------
         self.current_row += 1
-        study_instruction = ttk.Label(self,
+        study_instruction = ttk.Label(self, style='Nice.TLabel',
                                       text="Study mind timer")
         study_instruction.grid(row=self.current_row,
                                column=self.line_label,
@@ -194,7 +211,7 @@ class Timer(ttk.Frame):
         set_study_amount.grid(row=self.current_row,
                               column=self.set_entry_column,
                               padx=5, pady=5)
-        study_clock = ttk.Label(self,
+        study_clock = ttk.Label(self, style='Nice.TLabel',
                                 textvariable=self.study_label_text)
         study_clock.grid(row=self.current_row,
                          column=self.time_column,
@@ -205,7 +222,7 @@ class Timer(ttk.Frame):
 
         # --------- Review line -------
         self.current_row += 1
-        review_instruction = ttk.Label(self,
+        review_instruction = ttk.Label(self, style='Nice.TLabel',
                                        text="Review mind timer")
         review_instruction.grid(row=self.current_row,
                                 column=self.line_label,
@@ -220,7 +237,7 @@ class Timer(ttk.Frame):
         set_review_amount.grid(row=self.current_row,
                                column=self.set_entry_column,
                                padx=5, pady=5)
-        review_clock = ttk.Label(self,
+        review_clock = ttk.Label(self, style='Nice.TLabel',
                                  textvariable=self.review_label_text)
         review_clock.grid(row=self.current_row,
                           column=self.time_column,
@@ -231,7 +248,7 @@ class Timer(ttk.Frame):
 
         # --------- Relax line -------
         self.current_row += 1
-        relax_instruction = ttk.Label(self,
+        relax_instruction = ttk.Label(self, style='Nice.TLabel',
                                       text="Relax mind timer")
         relax_instruction.grid(row=self.current_row,
                                column=self.line_label,
@@ -248,7 +265,7 @@ class Timer(ttk.Frame):
         set_relax_amount.grid(row=self.current_row,
                               column=self.set_entry_column,
                               padx=5, pady=5)
-        relax_clock = ttk.Label(self,
+        relax_clock = ttk.Label(self, style="Nice.TLabel",
                                 textvariable=self.relax_label_text)
         relax_clock.grid(row=self.current_row,
                          column=self.time_column,
@@ -265,11 +282,11 @@ class Timer(ttk.Frame):
                                         style='Error.TLabel')
         error_message_label.grid(row=self.current_row, column=0, columnspan=2)
         start_button = ttk.Button(self, text="Start", command=self.start_timer)
-        start_button.grid(row=self.current_row, column=2, padx=5, pady=30, ipady=5, sticky=tk.S)
+        start_button.grid(row=self.current_row, column=2, padx=5, pady=20, ipady=5, sticky=tk.S)
         quit = ttk.Button(self, text="Quit", command=self.quit)
-        quit.grid(row=self.current_row, column=3, padx=5, pady=30, ipady=5, sticky=tk.S)
-        self.pack(fill=tk.BOTH, expand=1, padx=10, pady=10)
-        self.set_vals()
+        quit.grid(row=self.current_row, column=3, padx=5, pady=20, ipady=5, sticky=tk.S)
+        self.configure(style='Nice.TFrame')
+        self.pack(fill=tk.BOTH, expand=1, ipadx=10, ipady=10)
 
     def set_vals(self):
         """Set the clock values"""
